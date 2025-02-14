@@ -28,7 +28,7 @@ exports.login = async (req, res, next) => {
     if (user.twoFactorEnabled && !twoFactorCode) {
       return res.status(403).json({ message: 'Two-factor authentication required' });
     }
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, role: user.role }, config.jwtSecret, { expiresIn: '1h' });
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     next(error);

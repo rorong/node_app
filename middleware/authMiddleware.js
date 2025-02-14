@@ -8,7 +8,7 @@ exports.authenticate = async (req, res, next) => {
   if (!authHeader) return res.status(401).json({ message: 'Missing authorization header' });
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.jwtSecret);
+    const decoded = jwt.verify(token, config.jwtSecret);
     const user = await User.findByPk(decoded.id);
     if (!user) return res.status(401).json({ message: 'User not found' });
     req.user = user;
