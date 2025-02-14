@@ -7,7 +7,8 @@ module.exports = {
     database: process.env.DB_NAME || 'uber_app',
     host: process.env.DB_HOST || 'localhost',
     dialect: 'postgres',
-    logging: false
+    logging: false,
+    jwtSecret: process.env.JWT_SECRET || 'testsecret',
   },
   test: {
     username: process.env.DB_USERNAME || 'postgres',
@@ -15,7 +16,9 @@ module.exports = {
     database: process.env.DB_NAME || 'uber_app_test',
     host: process.env.DB_HOST || 'localhost',
     dialect: 'postgres',
-    logging: false
+    logging: false,
+    jwtSecret: process.env.JWT_SECRET || 'testsecret',
+
   },
   production: {
     username: process.env.DB_USERNAME || 'postgres',
@@ -23,6 +26,7 @@ module.exports = {
     database: process.env.DB_NAME || 'uber_app_prod',
     host: process.env.DB_HOST || 'localhost',
     dialect: 'postgres',
-    logging: false
+    logging: false,
+    jwtSecret: process.env.JWT_SECRET || 'testsecret',
   }
 };

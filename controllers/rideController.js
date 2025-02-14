@@ -21,22 +21,34 @@ exports.bookRide = async (req, res, next) => {
     if (scheduledAt && new Date(scheduledAt) <= new Date()) {
       return res.status(400).json({ message: 'Scheduled time must be in the future' });
     }
-    
-    const fare = calculateFare(pickupLocation, dropoffLocation);
+
+    const pickupCoords = pickupLocation.match(/POINT\(([^ ]+) ([^ ]+)\)/);
+    const dropoffCoords = dropoffLocation.match(/POINT\(([^ ]+) ([^ ]+)\)/);
+
+    if (!pickupCoords || !dropoffCoords) {
+      return res.status(400).json({ message: 'Invalid location format' });
+    }
+
+    const formattedPickup = { type: 'Point', coordinates: [parseFloat(pickupCoords[1]), parseFloat(pickupCoords[2])] };
+    const formattedDropoff = { type: 'Point', coordinates: [parseFloat(dropoffCoords[1]), parseFloat(dropoffCoords[2])] };
+
+    const fare = calculateFare(formattedPickup, formattedDropoff);
+
     const ride = await Ride.create({
       userId: req.user.id,
-      pickupLocation,
-      dropoffLocation,
+      pickupLocation: formattedPickup,
+      dropoffLocation: formattedDropoff,
       fare,
       scheduledAt: scheduledAt || null,
       rideType: rideType || 'standard',
       biddingEnabled: biddingEnabled || false,
       pricingFactors: { advancedOptions }
     });
-    
+
     req.app.get('io').emit('rideRequested', { rideId: ride.id, pickupLocation, dropoffLocation });
     res.status(201).json({ message: 'Ride booked successfully', rideId: ride.id, fare });
   } catch (error) {
+    console.error('Error booking ride:', error);
     next(error);
   }
 };

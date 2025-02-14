@@ -1,6 +1,7 @@
 // middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const config = require('../config/config');
+const env = process.env.NODE_ENV || 'development';
+const config = require('../config/config')[env];
 const { User } = require('../models');
 
 exports.authenticate = async (req, res, next) => {

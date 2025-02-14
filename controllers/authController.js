@@ -2,7 +2,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const config = require('../config/config');
+const env = process.env.NODE_ENV || 'development'; // Default to 'development' if not set
+const config = require('../config/config')[env];
 
 exports.register = async (req, res, next) => {
   try {
