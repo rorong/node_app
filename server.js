@@ -50,6 +50,8 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+// DEBUG THE REASON FOR DEPLOYMENT.
+console.log('process env node port', process.env.NODE_ENV);
 sequelize.authenticate()
   .then(() => {
     console.log('Database connected...');

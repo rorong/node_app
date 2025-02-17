@@ -1,4 +1,3 @@
-// routes/rideRoutes.js
 const express = require('express');
 const { body, param } = require('express-validator');
 const router = express.Router();
@@ -13,6 +12,10 @@ router.post('/book', [
   body('dropoffLocation').exists().withMessage('Dropoff location is required'),
   body('scheduledAt').optional().isISO8601().withMessage('Scheduled time must be a valid date')
 ], validateRequest, rideController.bookRide);
+
+router.patch('/cancel', [
+  body('rideId').notEmpty().withMessage('Ride ID is required')
+], validateRequest, rideController.cancelRide);
 
 router.patch('/:rideId/status', [
   param('rideId').notEmpty().withMessage('Ride ID is required'),

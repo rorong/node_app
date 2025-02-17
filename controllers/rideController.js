@@ -1,5 +1,6 @@
 // controllers/rideController.js
 const { Ride } = require('../models');
+const { Op } = require('sequelize');
 
 const calculateFare = (pickup, dropoff) => {
   // Stub: Implement fare calculation (including dynamic pricing)
@@ -8,20 +9,23 @@ const calculateFare = (pickup, dropoff) => {
 
 exports.bookRide = async (req, res, next) => {
   try {
-    const {
-      pickupLocation,
-      dropoffLocation,
-      scheduledAt,
-      rideType,
-      biddingEnabled,
-      advancedOptions
-    } = req.body;
+    // Prevent multiple active rides per user
+    const activeRide = await Ride.findOne({
+      where: {
+        userId: req.user.id,
+        status: { [Op.in]: ['requested', 'accepted', 'in_progress'] }
+      }
+    });
+    if (activeRide) {
+      return res.status(400).json({ message: 'You have an active ride. Please cancel it before booking another ride.' });
+    }
+
+    const { pickupLocation, dropoffLocation, scheduledAt, rideType, biddingEnabled, advancedOptions } = req.body;
     
-    // Validate that scheduled time is in the future, if provided.
     if (scheduledAt && new Date(scheduledAt) <= new Date()) {
       return res.status(400).json({ message: 'Scheduled time must be in the future' });
     }
-
+    
     const pickupCoords = pickupLocation.match(/POINT\(([^ ]+) ([^ ]+)\)/);
     const dropoffCoords = dropoffLocation.match(/POINT\(([^ ]+) ([^ ]+)\)/);
 
@@ -49,6 +53,23 @@ exports.bookRide = async (req, res, next) => {
     res.status(201).json({ message: 'Ride booked successfully', rideId: ride.id, fare });
   } catch (error) {
     console.error('Error booking ride:', error);
+    next(error);
+  }
+};
+
+exports.cancelRide = async (req, res, next) => {
+  try {
+    const { rideId } = req.body;
+    const ride = await Ride.findOne({ where: { id: rideId, userId: req.user.id } });
+    if (!ride) return res.status(404).json({ message: 'Ride not found' });
+    if (ride.status === 'cancelled' || ride.status === 'completed') {
+      return res.status(400).json({ message: 'Ride already completed or cancelled' });
+    }
+    ride.status = 'cancelled';
+    await ride.save();
+    req.app.get('io').emit('rideStatusUpdated', { rideId: ride.id, status: 'cancelled' });
+    res.status(200).json({ message: 'Ride cancelled successfully' });
+  } catch (error) {
     next(error);
   }
 };
