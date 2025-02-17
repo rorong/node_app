@@ -48,14 +48,15 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-sequelize.authenticate()
-  .then(() => {
-    console.log('Database connected...');
-    return sequelize.sync(); // In production, use migrations
-  })
-  .then(() => {
-    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('DB connection error:', err));
+// TO DEBUG THE ERROR IN DEPLOYMENT FAILED IN THIS -> sequelize.sync()
+// sequelize.authenticate()
+//   .then(() => {
+//     console.log('Database connected...');
+//     return sequelize.sync(); // In production, use migrations
+//   })
+//   .then(() => {
+//     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//   })
+//   .catch(err => console.error('DB connection error:', err));
 
 module.exports = server;
