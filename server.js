@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(logger.requestLogger);
 app.use(rateLimiter);
 
-// Import routes (ensure these files exist and export a router)
+// Import routes
 const authRoutes = require('./routes/authRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -38,6 +38,8 @@ app.use('/api/safety', safetyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/blockchain', blockchainRoutes);
 
+app.use(errorHandler);
+
 const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 app.set('io', io);
@@ -48,15 +50,12 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-// TO DEBUG THE ERROR IN DEPLOYMENT FAILED IN THIS -> sequelize.sync()
-// sequelize.authenticate()
-//   .then(() => {
-//     console.log('Database connected...');
-//     return sequelize.sync(); // In production, use migrations
-//   })
-//   .then(() => {
-//     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-//   })
-//   .catch(err => console.error('DB connection error:', err));
+sequelize.authenticate()
+  .then(() => {
+    console.log('Database connected...');
+    // Do not call sequelize.sync() in production.
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => console.error('DB connection error:', err));
 
 module.exports = server;
