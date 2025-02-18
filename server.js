@@ -32,7 +32,7 @@ winstonLogger.info('Initializing middleware...');
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(winstonLogger.requestwinstonLogger);
+app.use(logger.requestLogger);
 app.use(rateLimiter);
 
 winstonLogger.info('Importing routes...');
