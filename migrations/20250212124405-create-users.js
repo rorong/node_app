@@ -7,6 +7,10 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
       },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       email: {
         type: Sequelize.STRING,
         unique: true,
@@ -31,6 +35,10 @@ module.exports = {
       isVerified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
+      },
+      addresses: {
+        type: Sequelize.JSON,
+        defaultValue: []
       },
       vehicleDetails: {
         type: Sequelize.JSON

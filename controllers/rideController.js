@@ -62,6 +62,9 @@ exports.cancelRide = async (req, res, next) => {
     const { rideId } = req.body;
     const ride = await Ride.findOne({ where: { id: rideId, userId: req.user.id } });
     if (!ride) return res.status(404).json({ message: 'Ride not found' });
+    if (ride.status === 'in_progress') {
+      return res.status(400).json({ message: 'You have already boarded the cab; cancellation is not allowed.' });
+    }
     if (ride.status === 'cancelled' || ride.status === 'completed') {
       return res.status(400).json({ message: 'Ride already completed or cancelled' });
     }

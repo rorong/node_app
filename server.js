@@ -68,7 +68,7 @@ io.on('connection', (socket) => {
 });
 
 logger.info('Init Database...');
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 if (!process.env.PORT) {
   logger.error('PORT is not defined in .env');
   process.exit(1);

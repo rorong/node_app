@@ -15,5 +15,6 @@ router.post('/process', [
 ], validateRequest, paymentController.processPayment);
 
 router.get('/report', paymentController.getPaymentReport);
+router.get('/details', paymentController.getPaymentDetails);
 
 module.exports = router;

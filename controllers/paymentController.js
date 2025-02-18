@@ -32,3 +32,12 @@ exports.getPaymentReport = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getPaymentDetails = async (req, res, next) => {
+  try {
+    const payments = await Payment.findAll({ where: { userId: req.user.id } });
+    res.status(200).json({ payments });
+  } catch (error) {
+    next(error);
+  }
+};
