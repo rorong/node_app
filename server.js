@@ -54,12 +54,13 @@ if (!process.env.PORT) {
   console.error('PORT is not defined in .env');
   process.exit(1);
 }
-sequelize.authenticate()
-  .then(() => {
-    console.log('Database connected...');
-    // Do not call sequelize.sync() in production.
-    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('DB connection error:', err));
+// Comment to debug
+// sequelize.authenticate()
+//   .then(() => {
+//     console.log('Database connected...');
+//     // Do not call sequelize.sync() in production.
+//     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//   })
+//   .catch(err => console.error('DB connection error:', err));
 
 module.exports = server;
