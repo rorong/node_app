@@ -49,7 +49,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected:', socket.id));
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
+
 // DEBUG THE REASON FOR DEPLOYMENT.
 console.log('process env node port', process.env.NODE_ENV);
 sequelize.authenticate()
