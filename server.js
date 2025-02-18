@@ -50,9 +50,10 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 10000;
-
-// DEBUG THE REASON FOR DEPLOYMENT.
-console.log('process env node port', process.env.NODE_ENV);
+if (!process.env.PORT) {
+  console.error('PORT is not defined in .env');
+  process.exit(1);
+}
 sequelize.authenticate()
   .then(() => {
     console.log('Database connected...');
