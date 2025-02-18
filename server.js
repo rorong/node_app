@@ -1,15 +1,15 @@
 // server.js
-import cors from 'cors';
-import dotenv from 'dotenv';
-import express from 'express';
-import helmet from 'helmet';
-import http from 'http';
-import { Server as socketIo } from 'socket.io';
-import winston from 'winston';
-import errorHandler from './middleware/errorHandler';
-import logger from './middleware/logger';
-import rateLimiter from './middleware/rateLimiter';
-import { sequelize } from './models'; // Loads models/index.js
+const cors = require('cors');
+const dotenv = require('dotenv');
+const express = require('express');
+const helmet = require('helmet');
+const http = require('http');
+const { Server: socketIo } = require('socket.io');
+const winston = require('winston');
+const errorHandler = require('./middleware/errorHandler');
+const logger = require('./middleware/logger');
+const rateLimiter = require('./middleware/rateLimiter');
+const { sequelize } = require('./models'); // Loads models/index.js
 
 dotenv.config();
 
