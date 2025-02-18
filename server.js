@@ -24,18 +24,18 @@ const logConfiguration = {
     winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
   )
 };
-const logger = winston.createLogger(logConfiguration);
+const winstonLogger = winston.createLogger(logConfiguration);
 
 const app = express();
 
-logger.info('Initializing middleware...');
+winstonLogger.info('Initializing middleware...');
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(logger.requestLogger);
+app.use(winstonLogger.requestwinstonLogger);
 app.use(rateLimiter);
 
-logger.info('Importing routes...');
+winstonLogger.info('Importing routes...');
 const authRoutes = require('./routes/authRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -45,7 +45,7 @@ const safetyRoutes = require('./routes/safetyRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const blockchainRoutes = require('./routes/blockchainRoutes');
 
-logger.info('Mounting routes...');
+winstonLogger.info('Mounting routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -62,13 +62,13 @@ const io = socketIo(server, { cors: { origin: '*', methods: ['GET', 'POST'] } })
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  logger.info(`Client connected: ${socket.id}`);
-  socket.on('disconnect', () => logger.info(`Client disconnected: ${socket.id}`));
+  winstonLogger.info(`Client connected: ${socket.id}`);
+  socket.on('disconnect', () => winstonLogger.info(`Client disconnected: ${socket.id}`));
 });
 
 const PORT = process.env.PORT || 10000;
 if (!process.env.PORT) {
-  logger.error('PORT is not defined in .env');
+  winstonLogger.error('PORT is not defined in .env');
   process.exit(1);
 }
 
@@ -83,12 +83,12 @@ const authenticateWithTimeout = (sequelize, timeout = 5000) => {
 
 authenticateWithTimeout(sequelize)
   .then(() => {
-    logger.info('Database connected...');
+    winstonLogger.info('Database connected...');
     // Do not call sequelize.sync() in production.
-    server.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+    server.listen(PORT, () => winstonLogger.info(`Server running on port ${PORT}`));
   })
   .catch(err => {
-    logger.error('DB connection error:', err);
+    winstonLogger.error('DB connection error:', err);
     process.exit(1);
   });
 
