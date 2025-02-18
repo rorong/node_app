@@ -1,24 +1,41 @@
 // server.js
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const helmet = require('helmet');
-const cors = require('cors');
-const { sequelize } = require('./models'); // Loads models/index.js
-const errorHandler = require('./middleware/errorHandler');
-const logger = require('./middleware/logger');
-const rateLimiter = require('./middleware/rateLimiter');
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import helmet from 'helmet';
+import http from 'http';
+import { Server as socketIo } from 'socket.io';
+import winston from 'winston';
+import errorHandler from './middleware/errorHandler';
+import logger from './middleware/logger';
+import rateLimiter from './middleware/rateLimiter';
+import { sequelize } from './models'; // Loads models/index.js
+
+dotenv.config();
+
+// Configure winston logger
+const logConfiguration = {
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'logs/server.log' })
+  ],
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+  )
+};
+const logger = winston.createLogger(logConfiguration);
 
 const app = express();
 
+logger.info('Initializing middleware...');
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(logger.requestLogger);
 app.use(rateLimiter);
 
-// Import routes
+logger.info('Importing routes...');
 const authRoutes = require('./routes/authRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -28,7 +45,7 @@ const safetyRoutes = require('./routes/safetyRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const blockchainRoutes = require('./routes/blockchainRoutes');
 
-// Mount routes
+logger.info('Mounting routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -45,22 +62,34 @@ const io = socketIo(server, { cors: { origin: '*', methods: ['GET', 'POST'] } })
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
-  socket.on('disconnect', () => console.log('Client disconnected:', socket.id));
+  logger.info(`Client connected: ${socket.id}`);
+  socket.on('disconnect', () => logger.info(`Client disconnected: ${socket.id}`));
 });
 
 const PORT = process.env.PORT || 10000;
 if (!process.env.PORT) {
-  console.error('PORT is not defined in .env');
+  logger.error('PORT is not defined in .env');
   process.exit(1);
 }
-// Comment to debug
-// sequelize.authenticate()
-//   .then(() => {
-//     console.log('Database connected...');
-//     // Do not call sequelize.sync() in production.
-//     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-//   })
-//   .catch(err => console.error('DB connection error:', err));
+
+const authenticateWithTimeout = (sequelize, timeout = 5000) => {
+  return Promise.race([
+    sequelize.authenticate(),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('DB connection timeout')), timeout)
+    )
+  ]);
+};
+
+authenticateWithTimeout(sequelize)
+  .then(() => {
+    logger.info('Database connected...');
+    // Do not call sequelize.sync() in production.
+    server.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+  })
+  .catch(err => {
+    logger.error('DB connection error:', err);
+    process.exit(1);
+  });
 
 module.exports = server;
