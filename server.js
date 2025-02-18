@@ -74,7 +74,8 @@ if (!process.env.PORT) {
   process.exit(1);
 }
 
-const authenticateWithTimeout = (sequelize, timeout = 5000) => {
+const authenticateWithTimeout = (sequelize, timeout = 2000) => {
+  logger.info('Attempting to authenticate with the database...');
   return Promise.race([
     sequelize.authenticate(),
     new Promise((_, reject) =>
